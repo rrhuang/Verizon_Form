@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediction Form</title>
+</head>
+<body>
+    <h2>Enter Parameters for Prediction</h2>
+    <form id="predictionForm">
+        <!-- Price input -->
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" step="0.01" required><br><br>
+
+        <!-- Down payment input -->
+        <label for="downpmt">Down Payment:</label>
+        <input type="number" id="downpmt" name="downpmt" step="0.01" required><br><br>
+
+        <!-- Months due input -->
+        <label for="monthdue">Months Due:</label>
+        <input type="number" id="monthdue" name="monthdue" step="0.01" required><br><br>
+
+        <!-- Payment type dropdown -->
+        <label for="pmttype">Payment Type:</label>
+        <select id="pmttype" name="pmttype" required>
+            <option value="1">Credit Payments</option>
+            <option value="5">Cash Payments</option>
+            <option value="4">Debit Payments</option>
+            <option value="3">Store Gift Card</option>
+        </select><br><br>
+
+        <!-- Credit score dropdown -->
+        <label for="credit_score">Credit Score:</label>
+        <select id="credit_score" name="credit_score" required>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+        </select><br><br>
+
+        <!-- Age input -->
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required><br><br>
+
+        <!-- Gender dropdown -->
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender" required>
+            <option value="1">Male</option>
+            <option value="2">Female</option>
+        </select><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <h3 id="result"></h3>
+
+    <script>
+        document.getElementById("predictionForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const price = parseFloat(document.getElementById("price").value);
+            const downpmt = parseFloat(document.getElementById("downpmt").value);
+            const monthdue = parseFloat(document.getElementById("monthdue").value);
+            const payment_left = price - downpmt;
+            const monthly_payment = payment_left / monthdue;
+            const pmttype = parseInt(document.getElementById("pmttype").value);
+            const credit_score = parseInt(document.getElementById("credit_score").value);
+            const age = parseInt(document.getElementById("age").value);
+            const gender = parseInt(document.getElementById("gender").value);
+
+            const formData = {
+                price: price,
+                downpmt: downpmt,
+                monthdue: monthdue,
+                payment_left: payment_left,
+                monthly_payment: monthly_payment,
+                pmttype: pmttype,
+                credit_score: credit_score,
+                age: age,
+                gender: gender
+            };
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                document.getElementById("result").textContent = "Application Prediction: " + result.prediction;
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("result").textContent = "Error: Unable to get prediction.";
+            }
+        });
+    </script>
+</body>
+</html>
